@@ -46,6 +46,15 @@ public class GameEngine {
     }
 
     public void playerTurn(Player player) {
+        /*
+         * Please implement this function, this should:
+         * 1. Take in the player who's playing the current turn
+         * 2. Give the player an option to select a card to put into the parade
+         * 3. Add the selected card to the parade
+         * 4. Based on card.getNumber(), separate cards into Removal Section (0, parade.size() - card.getNumber() - 1) and Untouched Section (parade.size() - card.getNumber() - 1 onwards)
+         * 5. Remove the cards within the removal section that has the same COLOUR or a NUMBER lower or same as card.getNumber()
+         * 6. Removed cards are added to the Player object, collected variable
+         */
         
     }
 
