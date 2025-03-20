@@ -13,10 +13,6 @@ public class pDeck {
                 deck.add(new Card(i, color));
             }
         }
-        shuffleDeck();
-    }
-
-    public void shuffleDeck() {
         Collections.shuffle(deck);
     }
 
@@ -35,9 +31,5 @@ public class pDeck {
 
     public ArrayList<Card> getDeck() {
         return deck;
-    }
-
-    public int getNumberOfCards() {
-        return deck.size();
     }
 }

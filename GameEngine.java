@@ -45,6 +45,10 @@ public class GameEngine {
         sc.close();
     }
 
+    public void playerTurn(Player player) {
+        
+    }
+
     public ArrayList<Player> getPlayers() {
         return players;
     }
@@ -52,6 +56,12 @@ public class GameEngine {
     public ArrayList<Card> getParade() {
         return parade;
     }
+
+    public void setParade(ArrayList<Card> parade) {
+        this.parade = parade;
+    }
+
+    
 
     // public ArrayList<Card> createSubDeck(String colour) {
     // ArrayList<Card> temp = new ArrayList<>();

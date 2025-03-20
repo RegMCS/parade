@@ -57,45 +57,45 @@ public class Player {
 //     /**
 //      * counts how many cards of a specific color the player has in the collected pile
 //      */
-//     public int countColor(String color) {
-//         int count = 0;
-//         for (Card card : collected) {
-//             if (card.getColor().equals(color)) {
-//                 count++;
-//             }
-//         }
-//         return count;
-//     }
+    public int countColor(String color) {
+        int count = 0;
+        for (Card card : collected) {
+            if (card.getColor().equals(color)) {
+                count++;
+            }
+        }
+        return count;
+    }
 
-//     /**
-//      * calculates the player's final score based on game rules
-//      * @param allPlayers - list of all players to determine majority for each color
-//      * @return total score
-//      */
-//     public int calculateScore(List<Player> allPlayers) {
-//         int totalScore = 0;
+    /**
+     * calculates the player's final score based on game rules
+     * @param allPlayers - list of all players to determine majority for each color
+     * @return total score
+     */
+    public int calculateScore(List<Player> allPlayers) {
+        int totalScore = 0;
 
-//         for (Card card : collected) {
-//             String color = card.getColor();
-//             int colorCount = countColor(color); // get the number of this color the player has
+        for (Card card : collected) {
+            String color = card.getColor();
+            int colorCount = countColor(color); // get the number of this color the player has
 
-//             // check if this player has the majority for this color
-//             boolean hasMajority = true;
-//             for (Player otherPlayer : allPlayers) {
-//                 if (otherPlayer != this && otherPlayer.countColor(color) >= colorCount) {
-//                     hasMajority = false; // another player has the same or more
-//                     break;
-//                 }
-//             }
+            // check if this player has the majority for this color
+            boolean hasMajority = true;
+            for (Player otherPlayer : allPlayers) {
+                if (otherPlayer != this && otherPlayer.countColor(color) >= colorCount) {
+                    hasMajority = false; // another player has the same or more
+                    break;
+                }
+            }
 
-//             // scoring rules
-//             if (hasMajority) {
-//                 totalScore += 1;  // majority color cards are worth 1 point each
-//             } else {
-//                 totalScore += card.getNumber();  // otherwise, use printed value on card
-//             }
-//         }
+            // scoring rules
+            if (hasMajority) {
+                totalScore += 1;  // majority color cards are worth 1 point each
+            } else {
+                totalScore += card.getNumber();  // otherwise, use printed value on card
+            }
+        }
 
-//         return totalScore;
-//     }
+        return totalScore;
+    }
 }
