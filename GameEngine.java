@@ -1,134 +1,105 @@
 import java.util.*;
 import java.io.*;
-import java.util.Random;
 
 public class GameEngine {
 
     /*
-     * let's create the decks first~
+     * One game object -> 1 list of players + 1 deck of parade + 1 pDeck
      */
-    private ArrayList<ArrayList<Card>> deck;
-    private Player parade;
-    /*
-     * I realised a problem with the draw card method, what about the cards in the
-     * parade, how would that be considered?
-     * then I realised that If I went and create a player called parade, then the
-     * problem would probably be solved,
-     * and when we count the points for the winnder, we aimply leave out counting
-     * player parade.
-     */
+    private ArrayList<Player> players = new ArrayList<>();
+    private ArrayList<Card> parade = new ArrayList<>();
+    private pDeck pdeck = new pDeck();
 
-    public ArrayList<Card> createSubDeck(String colour) {
-        ArrayList<Card> temp = new ArrayList<>();
-        for (int i = 0; i < 11; i++) {
-            // make new Card with value, for "player" we put null as we have not assigned
-            // card to player yet
-            Card current = new Card(i, colour, false, null);
-            temp.add(current);
-        }
-
-        return temp;
-    }
-
-    public void createDeck() {
-        ArrayList<Card> red = createSubDeck("red");
-        deck.add(red);
-        ArrayList<Card> blue = createSubDeck("blue");
-        deck.add(blue);
-        ArrayList<Card> green = createSubDeck("green");
-        deck.add(green);
-        ArrayList<Card> purple = createSubDeck("purple");
-        deck.add(purple);
-        ArrayList<Card> grey = createSubDeck("grey");
-        deck.add(grey);
-        ArrayList<Card> orange = createSubDeck("orange");
-        deck.add(orange);
-    }
-
-    public boolean checkIfGotCardLeft() {
-        boolean gotCardLeft = false;
-        Card current = null;
-        for (int i = 0; i < 6; i++) {
-            for (int j = 0; j < 11; j++) {
-                current = (deck.get(i)).get(j);
-                if (current.getOwner() == null) {
-                    gotCardLeft = true;
-                }
-            }
-        }
-
-        return gotCardLeft;
-    }
-
-    public Card drawCard() {
-        if (!(checkIfGotCardLeft())) {
-            System.out.println("No Cards Left! Returning NULL!");
-            return null;
-        }
-        // create instance of random class
-        Random rand = new Random();
-        boolean isOwnedByPlayer = true;
-        Card drawn = null;
-
-        do {
-            int randColour = rand.nextInt(6);
-            /*
-             * doing this will generate a random int from 0 to 5, hence we have to add 1 so
-             * that the range is instead 1 to 6;
-             * wait......
-             * I just realised, for a set of six colours, the index start from 0, so..... do
-             * not need to add 1.
-             */
-            int randValue = rand.nextInt(11);
-            // this will generate a random value from 0 to 10
-            drawn = (deck.get(randColour)).get(randValue);
-            if (drawn.getOwner() == null) {
-                isOwnedByPlayer = false;
-            }
-        } while (isOwnedByPlayer);
-        /*
-         * we will get a card at least once, if the card isNotOwnedByPlayer we can stop
-         * the loop and simply return that card
-         * else, we will continue the "drawing" process
+    public void startGame() {
+        /**
+         * Initializes and starts the game by performing the following setup:
+         * 
+         * 1. Prompts the user to input the number of players.
+         * 2. Shuffles the deck before dealing cards.
+         * 3. Creates player instances and deals each player.
+         * 4. Places 6 cards in the middle of the table as the initial parade
+         * participants.
+         * 5. Closes the scanner to prevent resource leaks.
          */
 
-        return drawn;
-    }
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Please input number of players: ");
+        Integer playercount = sc.nextInt();
+        System.out.println("");
 
-    public boolean have6Colours(Player temp) {
-        ArrayList<Card> cardOwned = temp.getCardsOwner();
-        int len = cardOwned.size();
-        boolean haveAllColours = false;
-        boolean haveRed = false;
-        boolean haveGreen = false;
-        boolean haveBlue = false;
-        boolean havePurple = false;
-        boolean haveGrey = false;
-        boolean haveOrange = false;
-        for (int i1 = 0; i1 < len; i1++) {
-            Card current1 = cardOwned.get(i1);
-            if ((current1.getColour()).equals("red")) {
-                haveRed = true;
+        // Instantiate players and issue cards
+        for (int i = 0; i < playercount; i++) {
+            Player temp = new Player();
+            for (int j = 0; j < 5; j++) {
+                temp.drawCard(pdeck.issueCard());
             }
-            if ((current1.getColour()).equals("green")) {
-                haveGreen = true;
-            }
-            if ((current1.getColour()).equals("blue")) {
-                haveBlue = true;
-            }
-            if ((current1.getColour()).equals("purple")) {
-                havePurple = true;
-            }
-            if ((current1.getColour()).equals("grey")) {
-                haveGrey = true;
-            }
-            if ((current1.getColour()).equals("orange")) {
-                haveOrange = true;
-            }
+
+            players.add(temp);
         }
 
-        haveAllColours = (haveRed && haveBlue && haveGreen && havePurple && haveGrey && haveOrange);
+        // Create parade
+        for (int i = 0; i < 6; i++) {
+            parade.add(pdeck.issueCard());
+        }
 
-        return haveAllColours;
+        sc.close();
     }
+
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
+
+    public ArrayList<Card> getParade() {
+        return parade;
+    }
+
+    // public ArrayList<Card> createSubDeck(String colour) {
+    // ArrayList<Card> temp = new ArrayList<>();
+    // for (int i = 0; i < 11; i++) {
+    // // make new Card with value, for "player" we put null as we have not assigned
+    // // card to player yet
+    // Card current = new Card(i, colour, false, null);
+    // temp.add(current);
+    // }
+
+    // return temp;
+    // }
+
+    // public boolean have6Colours(Player temp) {
+    // ArrayList<Card> cardOwned = temp.getCardsOwner();
+    // int len = cardOwned.size();
+    // boolean haveAllColours = false;
+    // boolean haveRed = false;
+    // boolean haveGreen = false;
+    // boolean haveBlue = false;
+    // boolean havePurple = false;
+    // boolean haveGrey = false;
+    // boolean haveOrange = false;
+    // for (int i1 = 0; i1 < len; i1++) {
+    // Card current1 = cardOwned.get(i1);
+    // if ((current1.getColour()).equals("red")) {
+    // haveRed = true;
+    // }
+    // if ((current1.getColour()).equals("green")) {
+    // haveGreen = true;
+    // }
+    // if ((current1.getColour()).equals("blue")) {
+    // haveBlue = true;
+    // }
+    // if ((current1.getColour()).equals("purple")) {
+    // havePurple = true;
+    // }
+    // if ((current1.getColour()).equals("grey")) {
+    // haveGrey = true;
+    // }
+    // if ((current1.getColour()).equals("orange")) {
+    // haveOrange = true;
+    // }
+    // }
+
+    // haveAllColours = (haveRed && haveBlue && haveGreen && havePurple && haveGrey
+    // && haveOrange);
+
+    // return haveAllColours;
+    // }
 }
