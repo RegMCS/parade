@@ -45,6 +45,40 @@ public class GameEngine {
         sc.close();
     }
 
+    public Card getCardFromHand(Player player, String colour, int value){
+
+        ArrayList<Card> theHand = player.getHand();
+        //initialise card result.
+        Card result = null;
+        boolean gotColour = false;
+        boolean gotValue = false;
+        int len = theHand.size();
+        Iterator<Card> iter = theHand.iterator();
+        while(iter.hasNext()){
+            gotColour = false;
+            gotValue = false;
+
+            Card current = iter.next();
+            if(colour.equals(current.getColor())){
+                gotColour = true;
+            }
+            if( ( (current.getNumber()) - value) == 0  ){
+                gotValue = true;
+            }
+
+            if(gotColour && gotValue){
+                result = current;
+                //we also have to remove the card we "take" for theHand and also break out of the loop to ensure we do not "take" 
+                //more than one card
+                iter.remove();
+                break;
+            }
+            //we have to reset gotColour and GotValue to be false at the stary of every loop as that current result do no interfere next one
+        }
+
+        return result;
+    }
+
     public boolean cardIsInHand(Player player,String colour, int value){
         boolean isInHand = false;
         ArrayList<Card> theHand = player.getHand();
@@ -87,7 +121,9 @@ public class GameEngine {
          System.out.printf("Options: %s", player.getHand());
          Scanner sc = new Scanner(System.in);
          
-         
+         String colour = null;
+         int value = 20;
+
          boolean isNotOkCard = true;
          do{
 
@@ -96,9 +132,9 @@ public class GameEngine {
          //next we split to the colours and value
          String[] part = cardChosed.split(" ");
          //assuming first element always "colour" and second always "value"
-         String colour = part[0];
+         colour = part[0];
          //arbitrarily assign value to be 20, we know that there is no way for value to be 20, this is just so value is initialised
-         int value = 20;
+         value = 20;
          try{
             value = Integer.parseInt(part[1]);
          }catch (NumberFormatException e){
@@ -124,6 +160,12 @@ public class GameEngine {
         //when the player chooses a card that is in the hand, the bool is now false and will not loop again
 
          }while(isNotOkCard);
+
+         //3. Add the selected card to the parade
+         parade.add(getCardFromHand(player, colour, value));
+         //now we have removed the card from playerHand and added to paradedeck
+         
+
 
     }
 
