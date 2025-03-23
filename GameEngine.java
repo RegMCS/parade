@@ -42,7 +42,7 @@ public class GameEngine {
             parade.add(pdeck.issueCard());
         }
 
-        sc.close();
+        // sc.close();
     }
 
 

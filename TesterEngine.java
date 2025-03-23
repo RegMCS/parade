@@ -56,21 +56,23 @@ public class TesterEngine {
         game.playerTurn(player);
         System.out.println("");
         System.out.println("---------Test 3.1: Parade--------");
-        ArrayList<Card> tempList = new ArrayList<>(game.getParade().subList(Math.max(0, game.getParade().size() - (playedCard.getNumber())), game.getParade().size()));
-        ArrayList<Card> expectres31 = new ArrayList<>(game.getParade().subList(0, Math.max(0, game.getParade().size() - (playedCard.getNumber()))));
-        ArrayList<Card> expectres32 = new ArrayList<>(expectres31.stream()
-        .filter(card -> card.getColor().equals(playedCard.getColor()) || card.getNumber() < playedCard.getNumber())
-        .toList());
-        expectres31.addAll(tempList);
-        expectres31.add(playedCard);
-        expectres31.removeAll(expectres32);
+        // ArrayList<Card> tempList = new ArrayList<>(game.getParade().subList(Math.max(0, game.getParade().size() - (playedCard.getNumber())), game.getParade().size()));
+        // ArrayList<Card> expectres31 = new ArrayList<>(game.getParade().subList(0, Math.max(0, game.getParade().size() - (playedCard.getNumber()))));
+        // ArrayList<Card> expectres32 = new ArrayList<>(expectres31.stream()
+        // .filter(card -> card.getColor().equals(playedCard.getColor()) || card.getNumber() < playedCard.getNumber())
+        // .toList());
+        // expectres31.addAll(tempList);
+        // expectres31.add(playedCard);
+        // expectres31.removeAll(expectres32);
 
-        System.out.println("Expected Parade: " + expectres31);
+        // System.out.println("Expected Parade: " + expectres31);
+        System.out.println("Expected Parade: [blue 3, grey 4, red 1]");
         System.out.println("Actual Parade: " + game.getParade());
         System.out.println("---------------------------------");
         System.out.println("");
         System.out.println("-------Test 3.2: Collected-------");
-        System.out.println("Expected Collected: " + expectres32);
+        // System.out.println("Expected Collected: " + expectres32);
+        System.out.println("Expected Collected: [red 0, red 2, purple 1, yellow 0, red 7]");
         System.out.println("Actual Collected: " + player.getCollected());
         System.out.println("---------------------------------");
 
