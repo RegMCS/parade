@@ -45,6 +45,13 @@ public class GameEngine {
         sc.close();
     }
 
+
+    public void addCardToPlayer(Player player, Card card){
+        ArrayList<Card> theCollect = player.getCollected();
+        theCollect.add(card);
+    }
+
+
     public Card getCardFromHand(Player player, String colour, int value){
 
         ArrayList<Card> theHand = player.getHand();
@@ -162,21 +169,47 @@ public class GameEngine {
          }while(isNotOkCard);
 
          //3. Add the selected card to the parade
-         Card chosen = getCardFromHand(player, colour, value)
+         Card chosen = getCardFromHand(player, colour, value);
          parade.add(chosen);
          //now we have removed the card from playerHand and added to paradedeck
 
          //4. Based on card.getNumber(), separate cards into Removal Section (0, parade.size() - card.getNumber() - 1) 
          //and Untouched Section (parade.size() - card.getNumber() - 1 onwards)
+         //&
+         // 5. Remove the cards within the removal section that has the same COLOUR or a NUMBER lower or same as card.getNumber()
+         //&
+         //6. Removed cards are added to the Player object, collected variable
          int lenParade = parade.size();
          // we add 1 to the getNumber is cause we also added the new card to parade that is also not in removal mode
          int numCardsToLoop = lenParade - ((chosen.getNumber()) + 1);
+         Iterator<Card> iterParade = parade.iterator();
+         
          for(int i = 0 ; i < numCardsToLoop ; i++){
-            
+            //we make use of the iterator as we need to be able to "remove" card from parade.
+            Card current = null;
+            if(iterParade.hasNext()){
+                current = iterParade.next();
+                String currentColour = current.getColor();
+                int currentValue = current.getNumber();
+
+                if(currentColour.equals(chosen.getColor())){
+                    addCardToPlayer(player, current);
+                    iterParade.remove();
+                    //go to next loop as card has been added and removed
+                    continue;
+                }
+                if( (currentValue - (chosen.getNumber())) <= 0){
+                    //this means current card has value less or equal to the chosencard
+                    addCardToPlayer(player, current);
+                    iterParade.remove();
+                    //go to next loop as card has been added and removed
+                    continue;
+                }
+            }
          }
 
 
-
+         sc.close();
     }
 
     public ArrayList<Player> getPlayers() {
