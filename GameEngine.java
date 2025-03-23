@@ -162,12 +162,19 @@ public class GameEngine {
          }while(isNotOkCard);
 
          //3. Add the selected card to the parade
-         parade.add(getCardFromHand(player, colour, value));
+         Card chosen = getCardFromHand(player, colour, value)
+         parade.add(chosen);
          //now we have removed the card from playerHand and added to paradedeck
 
          //4. Based on card.getNumber(), separate cards into Removal Section (0, parade.size() - card.getNumber() - 1) 
          //and Untouched Section (parade.size() - card.getNumber() - 1 onwards)
-         
+         int lenParade = parade.size();
+         // we add 1 to the getNumber is cause we also added the new card to parade that is also not in removal mode
+         int numCardsToLoop = lenParade - ((chosen.getNumber()) + 1);
+         for(int i = 0 ; i < numCardsToLoop ; i++){
+            
+         }
+
 
 
     }
