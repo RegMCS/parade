@@ -45,6 +45,32 @@ public class GameEngine {
         sc.close();
     }
 
+    public boolean cardIsInHand(Player player,String colour, int value){
+        boolean isInHand = false;
+        ArrayList<Card> theHand = player.getHand();
+        boolean gotColour = false;
+        boolean gotValue = false;
+        int len = theHand.size();
+        for(int i = 0 ; i < len ; i++){
+            gotColour = false;
+            gotValue = false;
+
+            Card current = theHand.get(i);
+            if(colour.equals(current.getColor())){
+                gotColour = true;
+            }
+            if( ( (current.getNumber()) - value) == 0  ){
+                gotValue = true;
+            }
+
+            if(gotColour && gotValue){
+                isInHand = true;
+            }
+            //we have to reset gotColour and GotValue to be false at the stary of every loop as that current result do no interfere next one
+        }
+        return isInHand;
+    }
+
     public void playerTurn(Player player) {
         /*
          * Please implement this function, this should:
@@ -56,6 +82,49 @@ public class GameEngine {
          * 6. Removed cards are added to the Player object, collected variable
          */
         
+         // 2. Give the player an option to select a card to put into the parade
+         System.out.println("Please choose a card in hand to place face up at end of parade");
+         System.out.printf("Options: %s", player.getHand());
+         Scanner sc = new Scanner(System.in);
+         
+         
+         boolean isNotOkCard = true;
+         do{
+
+         System.out.print("Please Type card chosen:");
+         String cardChosed = sc.nextLine();
+         //next we split to the colours and value
+         String[] part = cardChosed.split(" ");
+         //assuming first element always "colour" and second always "value"
+         String colour = part[0];
+         //arbitrarily assign value to be 20, we know that there is no way for value to be 20, this is just so value is initialised
+         int value = 20;
+         try{
+            value = Integer.parseInt(part[1]);
+         }catch (NumberFormatException e){
+            e.getMessage();
+         }
+        //  //if value is not between 0 - 10, we will reject value
+        //  boolean isBetweenAcceptedValues = false;
+        //  for(int i = 0; i < 11 ; i++){
+        //     if( (value - i) == 0){
+        //         isBetweenAcceptedValues = true;
+        //     }
+        //  }
+        //  if(!(isBetweenAcceptedValues)){
+        //     System.out.println("Value is not between accepted range of values.");
+        //  }
+
+        //I realised it might be easier to just make a method to tell whther the "card" is in the players hand
+        if( !(cardIsInHand(player, colour, value))){
+            System.out.println("The card chosen is not in the player's hand, please try again");
+        }
+
+        isNotOkCard = (! (cardIsInHand(player, colour, value)));
+        //when the player chooses a card that is in the hand, the bool is now false and will not loop again
+
+         }while(isNotOkCard);
+
     }
 
     public ArrayList<Player> getPlayers() {
