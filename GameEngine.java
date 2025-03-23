@@ -164,6 +164,9 @@ public class GameEngine {
          //3. Add the selected card to the parade
          parade.add(getCardFromHand(player, colour, value));
          //now we have removed the card from playerHand and added to paradedeck
+
+         //4. Based on card.getNumber(), separate cards into Removal Section (0, parade.size() - card.getNumber() - 1) 
+         //and Untouched Section (parade.size() - card.getNumber() - 1 onwards)
          
 
 
