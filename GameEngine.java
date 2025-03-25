@@ -134,7 +134,7 @@ public class GameEngine {
          boolean isNotOkCard = true;
          do{
 
-         System.out.print("Please Type card chosen:");
+         System.out.println("Please Type card chosen:");
          String cardChosed = sc.nextLine();
          //next we split to the colours and value
          String[] part = cardChosed.split(" ");
