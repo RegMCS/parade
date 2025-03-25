@@ -9,6 +9,8 @@ public class GameEngine {
     private ArrayList<Player> players = new ArrayList<>();
     private ArrayList<Card> parade = new ArrayList<>();
     private pDeck pdeck = new pDeck();
+    private boolean pvp = false; // Stores whether game is player-vs-player or player-vs-bot
+    private boolean lastround = false;
 
     public void startGame() {
         /**
@@ -21,157 +23,183 @@ public class GameEngine {
          * participants.
          * 5. Closes the scanner to prevent resource leaks.
          */
-
         Scanner sc = new Scanner(System.in);
-        System.out.print("Please input number of players: ");
-        Integer playercount = sc.nextInt();
+
+        while (true) {
+            System.out.print("Please indicate player-vs-computer or player-vs-player [pvc/pvp]: ");
+            
+            String chosen_mode = sc.nextLine().trim().toLowerCase();
+            
+            if (chosen_mode.equals("pvp")) {
+                pvp = true;
+                break;
+
+            }
+            if (chosen_mode.equals("pvc")) {
+                pvp = false;
+                break;
+
+            }
+            System.out.println("Invalid input! Please enter 'pvc' or 'pvp'.");
+        }
+        
+        int playercount = 0;
+
+        while (true) {
+            try {
+                System.out.print("Please input number of players: ");
+                playercount = sc.nextInt();
+                
+                if (playercount >= 2 && playercount <= 6) {
+                    break;
+
+                } else {
+                    System.out.println("Invalid input! Number of players must be between 2 and 6.");
+
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input! Please enter a valid number.");
+                sc.next();
+
+            }
+        }
+        
         System.out.println("");
 
-        // Instantiate players and issue cards
-        for (int i = 0; i < playercount; i++) {
+        if (pvp) {
+            // Instantiate players and issue cards - IF PVP
+            for (int i = 0; i < playercount; i++) {
+                Player temp = new Player();
+                for (int j = 0; j < 5; j++) {
+                    temp.drawCard(pdeck.issueCard());
+                }
+
+                players.add(temp);
+            }
+        } else {
+            // Instantiate player and issue cards
             Player temp = new Player();
             for (int j = 0; j < 5; j++) {
                 temp.drawCard(pdeck.issueCard());
             }
-
             players.add(temp);
+
+            // Instantiate bots and issue cards
+            for (int i = 0; i < playercount - 1; i++) {
+                Bot temp2 = new Bot();
+                for (int j = 0; j < 5; j++) {
+                    temp2.drawCard(pdeck.issueCard());
+                }
+                players.add(temp2);
+            }
         }
 
         // Create parade
         for (int i = 0; i < 6; i++) {
             parade.add(pdeck.issueCard());
+
         }
 
-        // sc.close();
+        gameManager();
     }
 
+    public void gameManager() {
 
-    public void addCardToPlayer(Player player, Card card){
+        int currentPlayerTurn = 0;
+
+        while (!gameEnd()) { // Replace with end game condition
+            if (currentPlayerTurn > players.size() - 1) {
+                currentPlayerTurn = 0;
+
+            } else {
+                System.out.printf("%n%nPlayer %d Turn:%n", currentPlayerTurn + 1);
+                playerTurn(players.get(currentPlayerTurn));
+
+                currentPlayerTurn++;
+            }
+        }
+
+        lastround = true;
+
+        for (int i = 0; i < players.size(); i++) {
+            if (currentPlayerTurn > players.size() - 1) {
+                currentPlayerTurn = 0;
+
+            } else {
+                System.out.printf("%n%nLAST ROUND%n");
+                System.out.printf("Player %d Turn:%n", currentPlayerTurn + 1);
+                playerTurn(players.get(currentPlayerTurn));
+
+                currentPlayerTurn++;
+            }
+        }
+
+        //Tabulate Scores
+        
+    }
+
+    public void addCardToPlayer(Player player, Card card) {
         ArrayList<Card> theCollect = player.getCollected();
         theCollect.add(card);
     }
 
-
-    public Card getCardFromHand(Player player, String colour, int value){
-
-        ArrayList<Card> theHand = player.getHand();
-        //initialise card result.
-        Card result = null;
-        boolean gotColour = false;
-        boolean gotValue = false;
-        int len = theHand.size();
-        Iterator<Card> iter = theHand.iterator();
-        while(iter.hasNext()){
-            gotColour = false;
-            gotValue = false;
-
-            Card current = iter.next();
-            if(colour.equals(current.getColor())){
-                gotColour = true;
-            }
-            if( ( (current.getNumber()) - value) == 0  ){
-                gotValue = true;
-            }
-
-            if(gotColour && gotValue){
-                result = current;
-                //we also have to remove the card we "take" for theHand and also break out of the loop to ensure we do not "take" 
-                //more than one card
-                iter.remove();
-                break;
-            }
-            //we have to reset gotColour and GotValue to be false at the stary of every loop as that current result do no interfere next one
-        }
-
-        return result;
-    }
-
-    public boolean cardIsInHand(Player player,String colour, int value){
-        boolean isInHand = false;
-        ArrayList<Card> theHand = player.getHand();
-        boolean gotColour = false;
-        boolean gotValue = false;
-        int len = theHand.size();
-        for(int i = 0 ; i < len ; i++){
-            gotColour = false;
-            gotValue = false;
-
-            Card current = theHand.get(i);
-            if(colour.equals(current.getColor())){
-                gotColour = true;
-            }
-            if( ( (current.getNumber()) - value) == 0  ){
-                gotValue = true;
-            }
-
-            if(gotColour && gotValue){
-                isInHand = true;
-            }
-            //we have to reset gotColour and GotValue to be false at the stary of every loop as that current result do no interfere next one
-        }
-        return isInHand;
-    }
-
     public void playerTurn(Player player) {
         /*
-         * Please implement this function, this should:
-         * 1. Take in the player who's playing the current turn
-         * 2. Give the player an option to select a card to put into the parade
+         * 1. Take in the player/bot who's playing the current turn
+         * 2. Give the player an option to select a card to put into the parade (Skipped if its a Bot)
          * 3. Add the selected card to the parade
          * 4. Based on card.getNumber(), separate cards into Removal Section (0, parade.size() - card.getNumber() - 1) and Untouched Section (parade.size() - card.getNumber() - 1 onwards)
          * 5. Remove the cards within the removal section that has the same COLOUR or a NUMBER lower or same as card.getNumber()
          * 6. Removed cards are added to the Player object, collected variable
-         */
+        */
         
-         // 2. Give the player an option to select a card to put into the parade
-         System.out.println("Please choose a card in hand to place face up at end of parade");
-         System.out.printf("Options: %s \r\n", player.getHand());
-         Scanner sc = new Scanner(System.in);
-         
-         String colour = null;
-         int value = 20;
+        // 2. Give the player an option to select a card to put into the parade
+        Scanner sc = new Scanner(System.in);
+        Integer chosenIndex = null;
 
-         boolean isNotOkCard = true;
-         do{
+        if (player instanceof Bot bot) {
+            chosenIndex = bot.botTurn();
+            System.out.printf("Current Parade: %s%n%n", parade);
+            System.out.printf("Bot collected: %s%n", player.getCollected());
+            System.out.printf("Bot chose %s", player.getHand().get(chosenIndex));
 
-         System.out.print("Please Type card chosen:");
-         String cardChosed = sc.nextLine();
-         //next we split to the colours and value
-         String[] part = cardChosed.split(" ");
-         //assuming first element always "colour" and second always "value"
-         colour = part[0];
-         //arbitrarily assign value to be 20, we know that there is no way for value to be 20, this is just so value is initialised
-         value = 20;
-         try{
-            value = Integer.parseInt(part[1]);
-         }catch (NumberFormatException e){
-            e.getMessage();
-         }
-        //  //if value is not between 0 - 10, we will reject value
-        //  boolean isBetweenAcceptedValues = false;
-        //  for(int i = 0; i < 11 ; i++){
-        //     if( (value - i) == 0){
-        //         isBetweenAcceptedValues = true;
-        //     }
-        //  }
-        //  if(!(isBetweenAcceptedValues)){
-        //     System.out.println("Value is not between accepted range of values.");
-        //  }
+        } else {
 
-        //I realised it might be easier to just make a method to tell whther the "card" is in the players hand
-        if( !(cardIsInHand(player, colour, value))){
-            System.out.println("The card chosen is not in the player's hand, please try again");
+            List<Card> hand = player.getHand();
+            ArrayList<String> formattedList = new ArrayList<>();
+
+            for (int i = 0; i < hand.size(); i++) {
+                formattedList.add((i + 1) + ". " + hand.get(i).toString());
+                }
+
+            System.out.printf("pDeck remaining cards: %s%n", pdeck.getDeck().size());
+            System.out.printf("Current Parade: %s%n%n", parade);
+            System.out.printf("You collected: %s%n", player.getCollected());
+            System.out.println("Please choose a card in hand to place face up at end of parade");
+            System.out.printf("Options: %s \r\n", String.join(", ", formattedList));
+            System.out.print("Please Type card chosen:");
+            while (true) {
+                try {
+                    chosenIndex = sc.nextInt();
+            
+                    while (chosenIndex > hand.size() || chosenIndex <= 0) {
+                        System.out.print("Invalid Selection! Please select again: ");
+                        chosenIndex = sc.nextInt();
+                    }
+            
+                    break;
+                } catch (InputMismatchException e) {
+                    System.out.print("Invalid Selection! Please select again: ");
+                    sc.next();
+                }
+            }
+
+            chosenIndex--;
         }
 
-        isNotOkCard = (! (cardIsInHand(player, colour, value)));
-        //when the player chooses a card that is in the hand, the bool is now false and will not loop again
-
-         }while(isNotOkCard);
-
-         //3. Add the selected card to the parade
-         Card chosen = getCardFromHand(player, colour, value);
-         parade.add(chosen);
-         //now we have removed the card from playerHand and added to paradedeck
+        //Remove chosen card from player/bot and add to the Parade
+        Card chosen = player.playCard(player.getHand().get(chosenIndex));
+        parade.add(chosen);
 
          //4. Based on card.getNumber(), separate cards into Removal Section (0, parade.size() - card.getNumber() - 1) 
          //and Untouched Section (parade.size() - card.getNumber() - 1 onwards)
@@ -184,7 +212,7 @@ public class GameEngine {
          int numCardsToLoop = lenParade - ((chosen.getNumber()) + 1);
          Iterator<Card> iterParade = parade.iterator();
          
-         for(int i = 0 ; i < numCardsToLoop ; i++){
+        for(int i = 0 ; i < numCardsToLoop ; i++){
             //we make use of the iterator as we need to be able to "remove" card from parade.
             Card current = null;
             if(iterParade.hasNext()){
@@ -206,10 +234,31 @@ public class GameEngine {
                     continue;
                 }
             }
-         }
+        }
 
+        if (!lastround) {
+            player.drawCard(pdeck.issueCard());
+        }
+    }
 
-         sc.close();
+    public boolean gameEnd() {
+        if (pdeck.getDeck().size() == 0) {
+            return true;
+        }
+        for (Player player : players) {
+          
+            ArrayList<Card> currentCards = player.getCollected();
+            HashSet<String> colorSet = new HashSet<>(); // or HashSet<Color> if using enum
+
+            for (Card card : currentCards) {
+                colorSet.add(card.getColor()); // collect unique colors
+            }
+
+            if (colorSet.size() == 6) {
+                return true; // No need to continue checking others
+            }
+        }
+        return false;
     }
 
     public ArrayList<Player> getPlayers() {
@@ -224,55 +273,10 @@ public class GameEngine {
         this.parade = parade;
     }
 
-    
+    public static void main(String[] args) {
 
-    // public ArrayList<Card> createSubDeck(String colour) {
-    // ArrayList<Card> temp = new ArrayList<>();
-    // for (int i = 0; i < 11; i++) {
-    // // make new Card with value, for "player" we put null as we have not assigned
-    // // card to player yet
-    // Card current = new Card(i, colour, false, null);
-    // temp.add(current);
-    // }
+        GameEngine session = new GameEngine();
+        session.startGame(); // Starts the game
 
-    // return temp;
-    // }
-
-    // public boolean have6Colours(Player temp) {
-    // ArrayList<Card> cardOwned = temp.getCardsOwner();
-    // int len = cardOwned.size();
-    // boolean haveAllColours = false;
-    // boolean haveRed = false;
-    // boolean haveGreen = false;
-    // boolean haveBlue = false;
-    // boolean havePurple = false;
-    // boolean haveGrey = false;
-    // boolean haveOrange = false;
-    // for (int i1 = 0; i1 < len; i1++) {
-    // Card current1 = cardOwned.get(i1);
-    // if ((current1.getColour()).equals("red")) {
-    // haveRed = true;
-    // }
-    // if ((current1.getColour()).equals("green")) {
-    // haveGreen = true;
-    // }
-    // if ((current1.getColour()).equals("blue")) {
-    // haveBlue = true;
-    // }
-    // if ((current1.getColour()).equals("purple")) {
-    // havePurple = true;
-    // }
-    // if ((current1.getColour()).equals("grey")) {
-    // haveGrey = true;
-    // }
-    // if ((current1.getColour()).equals("orange")) {
-    // haveOrange = true;
-    // }
-    // }
-
-    // haveAllColours = (haveRed && haveBlue && haveGreen && havePurple && haveGrey
-    // && haveOrange);
-
-    // return haveAllColours;
-    // }
+    }
 }
