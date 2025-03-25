@@ -1,3 +1,5 @@
+package parade;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -5,7 +7,8 @@ import java.util.Comparator;
 public class TesterEngine {
     public static void main(String[] args) {
         pDeck deck = new pDeck();
-        GameEngine game = new GameEngine();
+        ConsoleUI ui = new ConsoleUI();
+        GameEngine game = new GameEngine(ui);
 
         System.out.println("-------Test 1: issueCard()-------");
         System.out.printf("Starting number of cards: %s%n", deck.getDeck().size());

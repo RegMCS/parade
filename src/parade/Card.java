@@ -1,4 +1,6 @@
-public class Card implements Comparable<Card> {
+package parade;
+
+public class Card {
     private int number;
     private String color;
 
@@ -16,17 +18,7 @@ public class Card implements Comparable<Card> {
     }
 
     @Override
-    public int compareTo(Card another) {
-        int colorval = this.color.compareTo(another.color);
-        if (colorval != 0) {
-            return colorval;
-        }
-        return Integer.compare(this.number, another.number);
-    }
-
-    @Override
     public String toString() {
         return color + " " + number;
     }
-    
 }

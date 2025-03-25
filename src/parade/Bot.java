@@ -1,3 +1,5 @@
+package parade;
+
 import java.util.*;
 
 public class Bot extends Player{
