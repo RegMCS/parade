@@ -125,7 +125,7 @@ public class GameEngine {
         
          // 2. Give the player an option to select a card to put into the parade
          System.out.println("Please choose a card in hand to place face up at end of parade");
-         System.out.printf("Options: %s", player.getHand());
+         System.out.printf("Options: %s \r\n", player.getHand());
          Scanner sc = new Scanner(System.in);
          
          String colour = null;
@@ -134,7 +134,7 @@ public class GameEngine {
          boolean isNotOkCard = true;
          do{
 
-         System.out.println("Please Type card chosen:");
+         System.out.print("Please Type card chosen:");
          String cardChosed = sc.nextLine();
          //next we split to the colours and value
          String[] part = cardChosed.split(" ");
