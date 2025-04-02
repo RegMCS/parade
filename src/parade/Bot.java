@@ -3,28 +3,51 @@ package parade;
 import java.util.*;
 
 public class Bot extends Player{
-
-    /**
-     * 1. choose least matching colours with the parade
-     * 2. collect low-value cards
-     * 3. control a colour (to get majority so cards are worth 1 point)
-     */
-
-    public Integer botTurn(){
+    
+    public Integer botTurn(List<Card> parade) {
         List<Card> hand = super.getHand();
-        int maxNumber = 0;
+    
+        int maxNumber = Integer.MIN_VALUE;
         int indexCardChosen = -1;
-
-        for (int i = 0; i < hand.size(); i++){
-            Card option = hand.get(i);
-            int cardNum = option.getNumber();
-            if (cardNum > maxNumber){
-                maxNumber = cardNum;
+    
+        // First pass: Find max number and its index
+        for (int i = 0; i < hand.size(); i++) {
+            int num = hand.get(i).getNumber();
+            if (num > maxNumber) {
+                maxNumber = num;
                 indexCardChosen = i;
             }
-
         }
-
+    
+        // Check if all cards in hand have the same number
+        boolean allSame = true;
+        for (Card c : hand) {
+            if (c.getNumber() != maxNumber) {
+                allSame = false;
+                break;
+            }
+        }
+    
+        // If all values are the same, fallback to least frequent color
+        if (allSame) {
+            Map<String, Integer> colorCount = new HashMap<>();
+            for (Card c : parade) {
+                colorCount.put(c.getColor(), colorCount.getOrDefault(c.getColor(), 0) + 1);
+            }
+    
+            int minCount = Integer.MAX_VALUE;
+            for (int i = 0; i < hand.size(); i++) {
+                String color = hand.get(i).getColor();
+                int count = colorCount.getOrDefault(color, 0);
+    
+                if (count < minCount) {
+                    minCount = count;
+                    indexCardChosen = i;
+                }
+            }
+        }
+    
         return indexCardChosen;
     }
+    
 }

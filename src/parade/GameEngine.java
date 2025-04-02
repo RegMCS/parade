@@ -142,7 +142,7 @@ public class GameEngine {
         if (player instanceof Bot bot) {
             ui.displayParade(parade);
             ui.displayCollectedCards(player);
-            chosenIndex = bot.botTurn();
+            chosenIndex = bot.botTurn(parade); // pass in parade
             ui.displayBotChoice(player.getHand().get(chosenIndex));
         } else {
             ui.displayDeckRemaining(pdeck.getDeck().size());
